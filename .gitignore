@@ -1,0 +1,17 @@
+.ipynb_checkpoints
+*.pyc
+__pycache__/
+Lib/
+Library/
+Include/
+Scripts/
+etc/
+share/
+
+# 檔案
+pyvenv.cfg
+
+# data
+IR-data/
+output/
+parameters/
