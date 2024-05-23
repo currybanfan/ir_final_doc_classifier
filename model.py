@@ -110,15 +110,14 @@ class TravelDocClassifier:
   
     return accuracy, cm
 
-  def predict(self, tokenizer, text):
+  def predict(self, text):
     self.model.to(self.device)
     self.model.eval()
 
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-    inputs = {k: v.to(self.device) for k, v in inputs.items()}
+    text = {k: v.to(self.device) for k, v in text.items()}
 
     with torch.no_grad():
-      outputs = self.model(**inputs)
+      outputs = self.model(**text)
       logits = outputs.logits
       pred_label = torch.argmax(logits, axis=1).cpu().numpy()[0]
 
