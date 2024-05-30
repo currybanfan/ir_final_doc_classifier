@@ -14,5 +14,6 @@ pyvenv.cfg
 
 # data
 IR-data/
-output/
+filtered_data/
 parameters/
+results/

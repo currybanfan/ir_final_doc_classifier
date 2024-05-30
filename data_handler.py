@@ -4,22 +4,32 @@ from transformers import BertTokenizer
 import torch
 from torch.utils.data import Dataset
 import re
+import os
 import json
 
-def load_json(file_name):
-    with open(file_name, 'r', encoding='utf-8') as file:
-      datas = json.load(file)
-      contents = [data['content'] for data in datas]
-      
-    return contents
+def load_json(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+      data = json.load(file)      
+    return data
+
+def save_json(data, file_path):
+  os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+  with open(file_path, 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
 
 def save_encoded_data(directory, encodings, labels):
-  with open(f'{directory}/encodings.pickle', 'wb') as handle:
+  file_path = f'{directory}/encodings.pickle'
+  os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+  with open(file_path, 'wb') as handle:
     pickle.dump(encodings, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-  with open(f'{directory}/labels.pickle', 'wb') as handle:
-    pickle.dump(labels, handle, protocol=pickle.HIGHEST_PROTOCOL)
+  file_path = f'{directory}/labels.pickle'
+  os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
+  with open(file_path, 'wb') as handle:
+    pickle.dump(labels, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 def load_encoded_data(directory):
   with open(f'{directory}/encodings.pickle', 'rb') as handle:

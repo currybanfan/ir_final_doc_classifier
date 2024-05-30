@@ -84,7 +84,7 @@ class TravelDocClassifier:
         print(f"Early stopping at epoch {epoch + 1}")
         break
     
-    self.save_params(self.model)
+    self.save_params()
   
     return epoch_statistics
 
