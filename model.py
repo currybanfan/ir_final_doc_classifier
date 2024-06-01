@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from datetime import datetime
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, confusion_matrix
+import os
 
 class TravelDocClassifier:
   def __init__(self, device, params_path=None):
@@ -17,9 +18,12 @@ class TravelDocClassifier:
 
   def save_params(self):
     current_date = datetime.now().strftime("%Y%m%d")
-    file_name = f'parameters/{current_date}_model_parameters.pth'
-    torch.save(self.model.state_dict(), file_name)
-    print(f'Saving parameters at {file_name}')
+    file_path = f'parameters/{current_date}_model_parameters.pth'
+
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    torch.save(self.model.state_dict(), file_path)
+    print(f'Saving parameters at {file_path}')
 
   def train(self, train_dataset, val_dataset, epochs=3, batch_size=16, learning_rate=5e-5, patience=2):
     self.model.to(self.device)
@@ -84,8 +88,11 @@ class TravelDocClassifier:
         print(f"Early stopping at epoch {epoch + 1}")
         break
     
-    self.save_params()
-  
+    try:
+      self.save_params()
+    except Exception as e:
+      print(f"An error occurred: {e}")
+      
     return epoch_statistics
 
   def test(self, test_dataset, batch_size=16):
