@@ -60,9 +60,7 @@ class DataHandler:
   def __init__(self, tokenizer_name='bert-base-chinese'):
     self.tokenizer = BertTokenizer.from_pretrained(tokenizer_name)
   
-  def gen_encoded_data(self, texts, labels, max_length, truncation=True, padding=True):
-    texts, labels = shuffle(texts, labels, random_state=42)
-
+  def gen_encoded_data(self, texts, max_length, truncation=True, padding=True):
     encodings = self.tokenizer(texts, truncation=truncation, padding=padding, max_length=max_length)
     
     return encodings

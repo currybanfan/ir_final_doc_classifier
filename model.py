@@ -1,24 +1,27 @@
 import torch
 import torch.optim as optim
 import torchmetrics
+import tqdm
 from transformers import BertForSequenceClassification
 from torch.utils.data import DataLoader
 from datetime import datetime
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, confusion_matrix
 import os
+import warnings
 
 class TravelDocClassifier:
   def __init__(self, device, params_path=None):
+    warnings.filterwarnings("ignore", message=r"Some weights of.*classifier.*are newly initialized")
     self.model = BertForSequenceClassification.from_pretrained('bert-base-chinese', num_labels=2)
     if params_path is not None:
       self.model.load_state_dict(torch.load(params_path))
 
     self.device = device
 
-  def save_params(self):
+  def save_params(self, best_acc):
     current_date = datetime.now().strftime("%Y%m%d")
-    file_path = f'parameters/{current_date}_model_parameters.pth'
+    file_path = f'parameters/{current_date}_{best_acc}_model_parameters.pth'
 
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
@@ -53,10 +56,14 @@ class TravelDocClassifier:
         train_loss.update(loss)
         train_acc.update(outputs.logits, batch['labels'])
 
-      epoch_statistics['train_losses'].append(train_loss.compute().item())
-      epoch_statistics['train_accuracies'].append(train_acc.compute().item() * 100)
+      loss = train_loss.compute().item()
+      acc = train_acc.compute().item() * 100
+      epoch_statistics['train_losses'].append(loss)
+      epoch_statistics['train_accuracies'].append(acc)
       train_acc.reset()
       train_loss.reset()
+
+      print(f"Epoch {epoch + 1}/{epochs} | Train Loss: {loss:.4f} | Train Accuracy: {acc:.2f}%")
 
       # Validation step
       self.model.eval()
@@ -89,7 +96,8 @@ class TravelDocClassifier:
         break
     
     try:
-      self.save_params()
+      best_acc = int(epoch_statistics["best_val_accuracy"])
+      self.save_params(best_acc)
     except Exception as e:
       print(f"An error occurred: {e}")
       
@@ -129,6 +137,26 @@ class TravelDocClassifier:
       pred_label = torch.argmax(logits, axis=1).cpu().numpy()[0]
 
     return pred_label
+  
+  def predict_all(self, texts):
+    self.model.to(self.device)
+    self.model.eval()
+
+    batch_size = 32
+    dataloader = DataLoader(texts, batch_size=batch_size)
+
+    all_pred_labels = []
+
+    with torch.no_grad():
+      for batch in tqdm(dataloader, desc="Predicting"):
+        batch = {k: v.to(self.device) for k, v in batch.items()}
+        outputs = self.model(**batch)
+        logits = outputs.logits
+        pred_labels = torch.argmax(logits, axis=1).cpu().numpy()
+        all_pred_labels.extend(pred_labels)
+
+    return all_pred_labels
+
   
   def plot_metrics(self, stats):
     epochs = len(stats['train_losses'])
