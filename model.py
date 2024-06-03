@@ -10,9 +10,10 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 import os
 import warnings
 
+warnings.filterwarnings("ignore", message=r"Some weights of.*classifier.*are newly initialized")
+
 class TravelDocClassifier:
   def __init__(self, device, params_path=None):
-    warnings.filterwarnings("ignore", message=r"Some weights of.*classifier.*are newly initialized")
     self.model = BertForSequenceClassification.from_pretrained('bert-base-chinese', num_labels=2)
     if params_path is not None:
       self.model.load_state_dict(torch.load(params_path))
@@ -96,7 +97,7 @@ class TravelDocClassifier:
         break
     
     try:
-      best_acc = int(epoch_statistics["best_val_accuracy"])
+      best_acc = int(epoch_statistics["best_val_accuracy"]*100)
       self.save_params(best_acc)
     except Exception as e:
       print(f"An error occurred: {e}")
@@ -142,20 +143,19 @@ class TravelDocClassifier:
     self.model.to(self.device)
     self.model.eval()
 
-    batch_size = 32
-    dataloader = DataLoader(texts, batch_size=batch_size)
+    dataloader = DataLoader(texts, batch_size=32)
 
-    all_pred_labels = []
+    predictions = []
 
     with torch.no_grad():
-      for batch in tqdm(dataloader, desc="Predicting"):
-        batch = {k: v.to(self.device) for k, v in batch.items()}
-        outputs = self.model(**batch)
+      for batch in dataloader:
+        inputs = {k: v.to(self.device) for k, v in batch.items()}
+        outputs = self.model(**inputs)
         logits = outputs.logits
-        pred_labels = torch.argmax(logits, axis=1).cpu().numpy()
-        all_pred_labels.extend(pred_labels)
-
-    return all_pred_labels
+        pred_labels = torch.argmax(logits, axis=1)
+        predictions.extend(pred_labels.cpu().numpy())
+    
+    return predictions
 
   
   def plot_metrics(self, stats):
