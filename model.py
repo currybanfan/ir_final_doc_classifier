@@ -1,7 +1,6 @@
 import torch
 import torch.optim as optim
 import torchmetrics
-import tqdm
 from transformers import BertForSequenceClassification
 from torch.utils.data import DataLoader
 from datetime import datetime
