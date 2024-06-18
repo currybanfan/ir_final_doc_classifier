@@ -31,14 +31,17 @@ def load_encoded_data(directory):
   return data
 
 def clean_text(text):
-    text = re.sub(r'※ \[.*?\] ', '', text)
-    text = re.sub(r'作者: .*? \(.*?\) 看板: .*? 標題: .*? 時間:\s+\w{3}\s+\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4}', '', text)
-    text = re.sub(r'http[s]?://\S+', '', text)
-    text = re.sub(r'^※.*?之銘言：$', '', text, flags=re.MULTILINE)
-    text = re.sub(r'.{0,5}?(網誌：|網誌版：|圖文：|圖文版：)', '', text)
-    text = re.sub(r'※ 發信站:.*', '', text, flags=re.DOTALL)
-    text = re.sub(r'[^\w。，!?"]', '', text, flags=re.UNICODE)
-    text = re.sub(r'_+', '', text)
+    text = re.sub(r'※ 引述《.*?》之銘言', ' ', text, flags=re.MULTILINE)
+    text = re.sub(r'※ \[.*?\] ', ' ', text)
+    text = re.sub(r'作者: .*? \(.*?\) 看板: .*? 標題: .*? 時間:\s+\w{3}\s+\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4}', ' ', text)
+    text = re.sub(r'http[s]?://\S+', ' ', text)
+    text = re.sub(r'.{0,5}?(網誌：|網誌版：|圖文：|圖文版：)', ' ', text)
+    text = re.sub(r'※ 發信站:.*', ' ', text, flags=re.DOTALL)
+    text = re.sub(r'[^\w。，!?"]', ' ', text, flags=re.UNICODE)
+    text = re.sub(r'_+', ' ', text)
+
+    text = re.sub(r'\s+', ' ', text)
+    text = text.strip()  
 
     return text
 
