@@ -8,6 +8,8 @@
 
 **Test Accuracy: 95%**
 
+## 資料處裡
+
 ### 資料格式
 
 ```json
@@ -36,9 +38,7 @@ non_travel_related_titles = ['交易', '廣告', '情報', '問卷', '資訊', '
 travel_related_titles : 39072
 non_travel_related_titles : 14439
 
-### 資料處裡
-
-**刪除垃圾文字**
+### 刪除垃圾文字
 
 1. 刪除以 "※ 引述《...》之銘言"
 2. 刪除 "※ [本文轉錄自....]"，例如"※ [本文轉錄自 India 看板 #1B-Dirji ]"
@@ -48,7 +48,7 @@ non_travel_related_titles : 14439
 6. 移除以 "※ 發信站:" 開頭的後續所有句子
 7. 刪除非字母、數字、中文標點符號和引號的字符
 
-**encoding**
+### encoding
 
 使用 tokenizer : `BertTokenizer.from_pretrained('bert-base-chinese')`
 
@@ -58,7 +58,9 @@ non_travel_related_titles : 14439
 train_encodings = data_handler.gen_encoded_data(train_texts, max_length=512)
 ```
 
-**訓練資料**
+## 訓練
+
+### 訓練資料
 
 訓練、驗證資料 : 旅遊相關 \* 0.8 + 非旅遊相關 \* 0.8 = 42808
 測試資料 : 旅遊相關 \* 0.2 + 非旅遊相關 \* 0.2 = 10703
@@ -76,13 +78,13 @@ train_dataset = Subset(create_dataset(encodings, labels), train_indices)
 val_dataset = Subset(create_dataset(encodings, labels), val_indices)
 ```
 
-### 訓練
+### 模型參數
 
-模型 : `BertForSequenceClassification.from_pretrained('bert-base-chinese', num_labels=2)`
-batch\*size=32
-epochs : 3
-optimizer : Adam
-learning rate : 0.00005
+-   模型 : `BertForSequenceClassification.from_pretrained('bert-base-chinese', num_labels=2)`
+-   batch_size=32
+-   epochs : 3
+-   optimizer : Adam
+-   learning rate : 0.00005
 
 ```python
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
