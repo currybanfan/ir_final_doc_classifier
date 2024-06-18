@@ -1,4 +1,6 @@
-### 使用 BertForSequenceClassification 做分類器
+# 使用 BertForSequenceClassification 做分類器
+
+### 結果
 
 ![train_result](demo/train_result.png)
 
@@ -103,6 +105,9 @@ test_accuracy, confusion = classifier.test(test_dataset)
 ![test_result](demo/test_result.png)
 
 **精確率 (Precision): 0.9099**
+
 **召回率 (Recall): 0.9062**
+
 **特異性 (Specificity): 0.9669**
+
 **F1 Score: 0.9080**
